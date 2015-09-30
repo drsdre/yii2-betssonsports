@@ -1,8 +1,8 @@
 {
-  "name": "drsdre/yii2-xmlsoccer",
-  "description": "Yii2 Extension for XMLSoccer.com API access",
-  "keywords": ["yii2", "extension", "soap", "consumer", "API", "nordicbet.com", "live sport odds"],
-  "homepage": "https://github.com/drsdre/yii2-nordicbet",
+  "name": "drsdre/yii2-betssonsports",
+  "description": "Yii2 Extension for Betsson Sports API access",
+  "keywords": ["yii2", "extension", "soap", "consumer", "API", "betsson.com", "live sport odds", "sportsbook"],
+  "homepage": "https://github.com/drsdre/yii2-betssonsports",
   "type": "yii2-extension",
   "license": "BSD-3-Clause",
   "support": {
