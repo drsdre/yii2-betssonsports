@@ -1,0 +1,29 @@
+{
+  "name": "drsdre/yii2-xmlsoccer",
+  "description": "Yii2 Extension for XMLSoccer.com API access",
+  "keywords": ["yii2", "extension", "soap", "consumer", "API", "nordicbet.com", "live sport odds"],
+  "homepage": "https://github.com/drsdre/yii2-nordicbet",
+  "type": "yii2-extension",
+  "license": "BSD-3-Clause",
+  "support": {
+    "issues": "https://github.com/drsdre/yii2-betssonsports/issues?state=open",
+    "source": "https://github.com/drsdre/yii2-betssonsports",
+    "docs": "https://sportsbook.betsson.com/en/"
+  },
+  "authors": [
+    {
+      "name": "Andre Schuurman",
+      "email": "andre.schuurman+yii2-betssonsports@gmail.com"
+    },
+  ],
+  "require": {
+    "php": ">=5.4.0",
+    "ext-soap": "*",
+    "yiisoft/yii2": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "BetssonSports\\": ""
+    }
+  }
+}
