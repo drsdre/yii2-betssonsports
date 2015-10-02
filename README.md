@@ -57,7 +57,20 @@ $client = new \BetssonSports\Client([
 How to use API:
 =================
 
-Request documentation from Betsson Affiliate program.	
+Request documentation from Betsson Affiliate program.
+
+
+Cache setup:
+=================
+
+This extension allows to store and update data in a local cache to facilitate quicker access and easier data updates. 
+To enable this features, several database tables have to be created using the following migration script:
+
+```
+./yii migrate --migrationPath=./vendor/drsdre/yii2-betssonsports/migrations
+```
+
+
 
 That's all!
 -----------
