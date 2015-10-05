@@ -3,6 +3,7 @@
 namespace BetssonSports\models;
 
 use Yii;
+use yii\helpers\ArrayHelper;
 use yii\behaviors\TimestampBehavior;
 
 /**
@@ -39,6 +40,18 @@ use yii\behaviors\TimestampBehavior;
  */
 class BetssonEventMarket extends \yii\db\ActiveRecord
 {
+    const STATUSNAME_OPEN = 10;
+    const STATUSNAME_SUSPENDED = 30;
+    const STATUSNAME_VOID = 70;
+    const STATUSNAME_CLOSED = 80;
+
+    static $statuses = [
+        self::STATUSNAME_OPEN => 'Open',
+        self::STATUSNAME_SUSPENDED => 'Suspended',
+        self::STATUSNAME_VOID => 'Void',
+        self::STATUSNAME_CLOSED => 'Closed',
+    ];
+
     /**
      * @inheritdoc
      */
@@ -80,25 +93,25 @@ class BetssonEventMarket extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'MarketID' => 'Market ID',
-            'LanguageCode' => 'Language Code',
+            'LanguageCode' => 'Lang Code',
             'EventID' => 'Event ID',
             'BetGroupID' => 'Bet Group ID',
             'BetGroupTypeID' => 'Bet Group Type ID',
             'BetGroupStyleID' => 'Bet Group Style ID',
-            'BetGroupName' => 'Bet Group Name',
+            'BetGroupName' => 'Bet Group',
             'BetGroupUnitID' => 'Bet Group Unit ID',
             'BetGroupUnitName' => 'Bet Group Unit Name',
-            'MarketStartDate' => 'Market Start Date',
-            'MarketEndDate' => 'Market End Date',
-            'MarketPublishDate' => 'Market Publish Date',
-            'MarketDeadline' => 'Market Deadline',
-            'MarketStatusID' => 'Market Status ID',
-            'MarketStatusName' => 'Market Status Name',
-            'MarketURL' => 'Market Url',
+            'MarketStartDate' => 'Start Date',
+            'MarketEndDate' => 'End Date',
+            'MarketPublishDate' => 'Publish Date',
+            'MarketDeadline' => 'Deadline',
+            'MarketStatusID' => 'Status ID',
+            'MarketStatusName' => 'Status',
+            'MarketURL' => 'Url',
             'IsLive' => 'Is Live',
-            'SubParticipantName' => 'Sub Participant Name',
+            'SubParticipantName' => 'Sub Participant',
             'CacheDate' => 'Cache Date',
-            'CacheExpireDate' => 'Cache Expire Date',
+            'CacheExpireDate' => 'Cache Expire',
             'ErrorMessage' => 'Error Message',
             'StartingPitchers' => 'Starting Pitchers',
             'created_at' => 'Created At',
@@ -107,18 +120,28 @@ class BetssonEventMarket extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return array
      */
-    public function getEvent()
+    public static function getBetGroupNameList()
     {
-        return $this->hasOne(BetssonLeagueEvent::className(), ['id' => 'EventID']);
+        $models = static::find()->orderBy('BetGroupName')->groupBy('BetGroupName')->all();
+
+        return ArrayHelper::map($models, 'BetGroupName', 'BetGroupName');
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getBetssonMarketSelections()
+    public function getEvent()
     {
-        return $this->hasMany(BetssonMarketSelection::className(), ['MarketID' => 'id']);
+        return $this->hasOne(BetssonLeagueEvent::className(), ['EventID' => 'EventID']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getSelections()
+    {
+        return $this->hasMany(BetssonMarketSelection::className(), ['MarketID' => 'MarketID']);
     }
 }

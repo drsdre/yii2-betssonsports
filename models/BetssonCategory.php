@@ -3,6 +3,7 @@
 namespace BetssonSports\models;
 
 use Yii;
+use yii\helpers\ArrayHelper;
 use yii\behaviors\TimestampBehavior;
 
 /**
@@ -75,18 +76,20 @@ class BetssonCategory extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return array
      */
-    public function getBetssonCategoryLeague()
+    public static function getList()
     {
-        return $this->hasOne(BetssonCategoryLeague::className(), ['CategoryID' => 'id']);
+        $models = static::find()->orderBy('CategoryName')->all();
+
+        return ArrayHelper::map($models, 'id', 'CategoryName');
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getBetssonLeagueEvents()
+    public function getLeague()
     {
-        return $this->hasMany(BetssonLeagueEvent::className(), ['SubCategoryID' => 'id']);
+        return $this->hasOne(BetssonCategoryLeague::className(), ['CategoryID' => 'CategoryID']);
     }
 }

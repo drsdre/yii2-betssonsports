@@ -3,6 +3,7 @@
 namespace BetssonSports\models;
 
 use Yii;
+use yii\helpers\ArrayHelper;
 use yii\behaviors\TimestampBehavior;
 
 /**
@@ -65,10 +66,10 @@ class BetssonCategoryLeague extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'LeagueID' => 'League ID',
-            'LanguageCode' => 'Language Code',
+            'LanguageCode' => 'Lang Code',
             'CategoryID' => 'Category ID',
-            'LeagueName' => 'League Name',
-            'LeagueURL' => 'League Url',
+            'LeagueName' => 'Name',
+            'LeagueURL' => 'Url',
             'CacheDate' => 'Cache Date',
             'CacheExpireDate' => 'Cache Expire Date',
             'ErrorMessage' => 'Error Message',
@@ -78,10 +79,24 @@ class BetssonCategoryLeague extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return array
+     */
+    public static function getLeagueNameList($CategoryID = null)
+    {
+        $query = static::find()->orderBy('LeagueName')->groupBy('LeagueName');
+        if (!is_null($CategoryID)) {
+            $query->andWhere(['CategoryID' => $CategoryID]);
+        }
+        $models = $query->all();
+
+        return ArrayHelper::map($models, 'LeagueID', 'LeagueName');
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getCategory()
     {
-        return $this->hasOne(BetssonCategory::className(), ['id' => 'CategoryID']);
+        return $this->hasOne(BetssonCategory::className(), ['CategoryID' => 'CategoryID']);
     }
 }

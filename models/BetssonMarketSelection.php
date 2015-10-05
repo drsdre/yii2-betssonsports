@@ -3,6 +3,7 @@
 namespace BetssonSports\models;
 
 use Yii;
+use yii\helpers\ArrayHelper;
 use yii\behaviors\TimestampBehavior;
 
 /**
@@ -27,6 +28,22 @@ use yii\behaviors\TimestampBehavior;
  */
 class BetssonMarketSelection extends \yii\db\ActiveRecord
 {
+    const STATUSNAME_OPEN = 1;
+    const STATUSNAME_WON = 2;
+    const STATUSNAME_LOST = 3;
+    const STATUSNAME_VOID = 4;
+    const STATUSNAME_HALF_WON = 5;
+    const STATUSNAME_HALF_LOST = 6;
+
+    static $statuses = [
+        self::STATUSNAME_OPEN => 'Open',
+        self::STATUSNAME_WON => 'Won',
+        self::STATUSNAME_LOST => 'Lost',
+        self::STATUSNAME_VOID => 'Void',
+        self::STATUSNAME_HALF_WON => 'Half won',
+        self::STATUSNAME_HALF_LOST => 'Half lost',
+    ];
+
     /**
      * @inheritdoc
      */
@@ -70,12 +87,13 @@ class BetssonMarketSelection extends \yii\db\ActiveRecord
             'SelectionID' => 'Selection ID',
             'LanguageCode' => 'Language Code',
             'MarketID' => 'Market ID',
+            'BetGroupNameParsed' => 'Bet Group',
+            'SelectionName' => 'Selection',
             'Odds' => 'Odds',
-            'SelectionLimitValue' => 'Selection Limit Value',
-            'SelectionStatus' => 'Selection Status',
-            'SelectionStatusName' => 'Selection Status Name',
-            'SelectionName' => 'Selection Name',
-            'SelectionSortOrder' => 'Selection Sort Order',
+            'SelectionLimitValue' => 'Limit Value',
+            'SelectionStatus' => 'Status ID',
+            'SelectionStatusName' => 'Status',
+            'SelectionSortOrder' => 'Sort Order',
             'CacheDate' => 'Cache Date',
             'CacheExpireDate' => 'Cache Expire Date',
             'created_at' => 'Created At',
@@ -84,10 +102,73 @@ class BetssonMarketSelection extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return array
+     */
+    public static function getSelectionNameList()
+    {
+        $models = static::find()->orderBy('SelectionName')->groupBy('SelectionName')->all();
+
+        return ArrayHelper::map($models, 'SelectionName', 'SelectionName');
+    }
+
+    /**
+     * @return array
+     */
+    public static function getSelectionStatusList()
+    {
+        return self::$statuses;
+    }
+
+    /**
+     * Returns the status name in nice format.
+     *
+     * @param  null|integer $status_id Status integer value if sent to method.
+     * @return string               Nicely formatted type.
+     */
+    public function getSelectionStatusName($status_id = null)
+    {
+        if (is_null($status_id)) {
+            $status_id = $this->SelectionStatus;
+        }
+        if (array_key_exists($status_id, self::$statuses)) {
+            return self::$statuses[$status_id];
+        }
+        else {
+            return $status_id;
+        }
+    }
+
+    public function getBetGroupNameParsed()
+    {
+        return str_replace(
+            ['#player#', '#limit#', '#unit#'],
+            [
+                $this->market->SubParticipantName,
+                $this->SelectionLimitValue,
+                $this->market->BetGroupUnitName
+            ],
+            $this->market->BetGroupName
+        );
+    }
+
+    public function getSelectionNameParsed()
+    {
+        return str_replace(
+            ['#player#', '#limit#', '#unit#'],
+            [
+                $this->market->SubParticipantName,
+                $this->SelectionLimitValue,
+                $this->market->BetGroupUnitName
+            ],
+            $this->SelectionName
+        );
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getMarket()
     {
-        return $this->hasOne(BetssonEventMarket::className(), ['id' => 'MarketID']);
+        return $this->hasOne(BetssonEventMarket::className(), ['MarketID' => 'MarketID']);
     }
 }

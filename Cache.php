@@ -67,11 +67,11 @@ class Cache {
 			$BetssonCategoryLeague = $this->StoreCategoryLeague( $sub_category );
 
 			// Check if data is available
-			if ( ! isset( $sub_category->SubCategoryEvents ) ) {
+			if ( ! isset( $sub_category->SubCategoryEvents->Event ) ) {
 				continue;
 			}
 
-			$events = $sub_category->SubCategoryEvents;
+			$events = $sub_category->SubCategoryEvents->Event;
 
 			if ( ! is_array( $events ) ) {
 				$events = [$events];
@@ -83,11 +83,11 @@ class Cache {
 				$BetssonLeagueEvent = $this->storeEvent( $event, $BetssonCategoryLeague->LeagueID );
 
 				// Check if data is available
-				if ( ! isset( $event->EventMarkets ) ) {
+				if ( ! isset( $event->EventMarkets->Market ) ) {
 					continue;
 				}
 
-				$markets = $event->EventMarkets;
+				$markets = $event->EventMarkets->Market;
 
 				if ( ! is_array( $markets ) ) {
 					$markets = [$markets];
