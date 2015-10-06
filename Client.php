@@ -15,7 +15,7 @@ use yii\base\InvalidConfigException;
 
 use BetssonSports\Cache;
 use BetssonSports\Exception;
-use BetssonSports\Models\BetssonCategory;
+use BetssonSports\models\BetssonCategory;
 
 class Client extends Component {
 	/**
