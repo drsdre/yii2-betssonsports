@@ -44,12 +44,14 @@ class BetssonEventMarket extends \yii\db\ActiveRecord
     const STATUSNAME_SUSPENDED = 30;
     const STATUSNAME_VOID = 70;
     const STATUSNAME_CLOSED = 80;
+    const STATUSNAME_EPIRED = 100;
 
     static $statuses = [
         self::STATUSNAME_OPEN => 'Open',
         self::STATUSNAME_SUSPENDED => 'Suspended',
         self::STATUSNAME_VOID => 'Void',
         self::STATUSNAME_CLOSED => 'Closed',
+        self::STATUSNAME_EPIRED => 'Expired',
     ];
 
     /**
@@ -127,6 +129,22 @@ class BetssonEventMarket extends \yii\db\ActiveRecord
         $models = static::find()->orderBy('BetGroupName')->groupBy('BetGroupName')->all();
 
         return ArrayHelper::map($models, 'BetGroupName', 'BetGroupName');
+    }
+
+
+    /**
+     * Expire open market for which deadline has passed
+     * @return int
+     */
+    static public function expireOpen() {
+        return \Yii::$app->db
+            ->createCommand()
+            ->update(self::tableName(),
+                [
+                    'MarketStatusID' => self::STATUSNAME_EPIRED,
+                    'MarketStatusName' => 'Expired',
+                ], 'MarketStatusID = '.self::STATUSNAME_OPEN.' AND MarketEndDate < NOW() AND MarketDeadline < NOW()')
+            ->execute();
     }
 
     /**

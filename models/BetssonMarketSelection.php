@@ -34,6 +34,7 @@ class BetssonMarketSelection extends \yii\db\ActiveRecord
     const STATUSNAME_VOID = 4;
     const STATUSNAME_HALF_WON = 5;
     const STATUSNAME_HALF_LOST = 6;
+    const STATUSNAME_EXPIRED = 10;
 
     static $statuses = [
         self::STATUSNAME_OPEN => 'Open',
@@ -42,6 +43,7 @@ class BetssonMarketSelection extends \yii\db\ActiveRecord
         self::STATUSNAME_VOID => 'Void',
         self::STATUSNAME_HALF_WON => 'Half won',
         self::STATUSNAME_HALF_LOST => 'Half lost',
+        self::STATUSNAME_EXPIRED => 'Expired',
     ];
 
     /**
@@ -162,6 +164,19 @@ class BetssonMarketSelection extends \yii\db\ActiveRecord
             ],
             $this->SelectionName
         );
+    }
+
+    /**
+     * Expire open selections for which Market has expired
+     * @return int
+     */
+    static public function expireOpen() {
+        return \Yii::$app->db
+            ->createCommand('update '.self::tableName().' AS selection LEFT JOIN '.BetssonEventMarket::tableName(). ' AS market ON '.
+                'selection.MarketID = market.MarketID '.
+                'SET selection.SelectionStatus = '.self::STATUSNAME_EXPIRED.', selection.SelectionStatusName = "Expired" '.
+                'WHERE SelectionStatus = '.self::STATUSNAME_OPEN.' AND market.MarketStatusID = ' . BetssonEventMarket::STATUSNAME_EPIRED)
+            ->execute();
     }
 
     /**

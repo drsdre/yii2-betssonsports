@@ -8,6 +8,8 @@
 
 namespace BetssonSports;
 
+use yii\db\ActiveRecord;
+
 use BetssonSports\models\BetssonCategory;
 use BetssonSports\models\BetssonCategoryLeague;
 use BetssonSports\models\BetssonEventMarket;
@@ -20,12 +22,71 @@ class Cache {
 
 	protected $_client;
 
+	protected $_stats = [];
+
+	/**
+	 * Increase statistic
+	 * @param $stat_name
+	 */
+	protected function incStat($stat_name, $amount = 1) {
+		if ($amount == 0) {
+			return;
+		}
+		if (isset($this->_stats[$stat_name])) {
+			$this->_stats[$stat_name] += $amount;
+		} else {
+			$this->_stats[$stat_name] = $amount;
+		}
+	}
+
+	/**
+	 * Retrieve statistics
+	 * @return array key value statistics
+	 */
+	public function getStatistics() {
+		return $this->_stats;
+	}
+
+	/**
+	 * Store data record and track change statistics
+	 *
+	 * @param ActiveRecord $ActiveRecord
+	 *
+	 * @return bool false if not saved
+	 */
+	protected function storeDataRecord( ActiveRecord $ActiveRecord ) {
+		if ( $ActiveRecord->getDirtyAttributes() ) {
+			$unsaved_record = clone $ActiveRecord;
+
+			// Save record
+			if ( ! $ActiveRecord->save() ) {
+				// Create error message
+				$message = "Save error: ".str_replace(['&', '='], [' ', ': '], http_build_query($ActiveRecord->errors, '') )."\n";
+				/*if ($this->debug) {
+					$message .= "Record data: ".str_replace(['&', '='], [' ', ': '], http_build_query($ActiveRecord->getAttributes(), '') )."\n";
+					$message .= "API data: ".str_replace(['&', '='], [' ', ': '], http_build_query($org_data, '') )."\n";
+				}*/
+				trigger_error($message, E_USER_WARNING);
+				$this->incStat('error_'.$ActiveRecord->tableName());
+				return false;
+			}
+
+			// Store statistics
+			if ($unsaved_record->isNewRecord) {
+				$this->incStat('new_'.$ActiveRecord->tableName());
+			} else {
+				$this->incStat('update_'.$ActiveRecord->tableName());
+			}
+		}
+		return false;
+	}
+
 	public function __construct($client) {
 		$this->_client = $client;
 	}
 
 	/**
-	 * Initiate the data in the databases
+	 * Initiate the data in the cache
 	 *
 	 * @return bool
 	 */
@@ -33,9 +94,22 @@ class Cache {
 		return $this->GetActiveSubCategories();
 	}
 
-
+	/**
+	 * Update the data in the cache
+	 *
+	 * @return bool
+	 */
 	public function updateData() {
 		return $this->GetLatestUpdates();
+	}
+
+	/**
+	 * Expire obsolete data in the cache
+	 */
+	public function expireData() {
+		$this->incStat('expire_market', BetssonEventMarket::expireOpen() );
+		$this->incStat('expire_selection', BetssonMarketSelection::expireOpen() );
+		return true;
 	}
 
 	/**
@@ -96,22 +170,6 @@ class Cache {
 				foreach ( $markets as $key => $market ) {
 					// Store the data
 					$BetssonEventMarket = $this->storeMarket( $market, $BetssonLeagueEvent->EventID );
-
-					// Check if data is available
-					if ( ! isset( $market->MarketSelections->MarketSelection ) ) {
-						continue;
-					}
-
-					$selections = $market->MarketSelections->MarketSelection;
-
-					if ( ! is_array( $selections ) ) {
-						$selections = [$selections];
-					}
-
-					foreach ( $selections as $key => $selection ) {
-						// Store the data
-						$BetssonEventMarket = $this->storeSelection( $selection, $BetssonEventMarket->MarketID );
-					}
 				}
 			}
 		}
@@ -175,10 +233,9 @@ class Cache {
 		$BetssonCategory->CacheExpireDate = $sub_category->CacheExpireDate;
 		$BetssonCategory->ErrorMessage = $sub_category->ErrorMessage;
 
-		if (!$BetssonCategory->save() ) {
-			throw new Exception(print_r($BetssonCategory->errors, true));
+		if (!$this->storeDataRecord($BetssonCategory)) {
+			return false;
 		}
-
 
 		// Load or store category league
 		if ( ! $BetssonCategoryLeague = BetssonCategoryLeague::findOne([
@@ -197,11 +254,9 @@ class Cache {
 		$BetssonCategoryLeague->CacheExpireDate = gmdate("Y-m-d H:i:s", strtotime($sub_category->CacheExpireDate));
 		$BetssonCategoryLeague->ErrorMessage = $sub_category->ErrorMessage;
 
-		if (!$BetssonCategoryLeague->save() ) {
-			throw new Exception(print_r($BetssonCategoryLeague->errors, true));
+		if ($this->storeDataRecord($BetssonCategoryLeague)) {
+			return false;
 		}
-
-		return $BetssonCategoryLeague;
 	}
 
 	/**
@@ -235,7 +290,7 @@ class Cache {
 				if ( ! isset( $event->EventID ) ) {
 					continue;
 				}
-				$BetssonLeagueEvent = $this->storeEvent( $event, $sub_category_id );
+				$this->storeEvent( $event, $sub_category_id );
 
 				// Get the markets for event
 				$this->GetActiveMarketsForEvent( $event->EventID );
@@ -266,11 +321,9 @@ class Cache {
 		$BetssonLeagueEvent->CacheExpireDate = gmdate("Y-m-d H:i:s", strtotime($event->CacheExpireDate));
 		$BetssonLeagueEvent->ErrorMessage = $event->ErrorMessage;
 
-		if (!$BetssonLeagueEvent->save() ) {
-			throw new Exception(print_r($BetssonLeagueEvent->errors, true));
+		if ($this->storeDataRecord($BetssonLeagueEvent)) {
+			return false;
 		}
-
-		return $BetssonLeagueEvent;
 	}
 
 	protected function GetActiveMarketsForEvent($event_id) {
@@ -298,7 +351,7 @@ class Cache {
 					return false;
 				}
 
-				$BetssonEventMarket = $this->storeMarket($market, $event_id);
+				$this->storeMarket($market, $event_id);
 			} else {
 				return false;
 			}
@@ -346,26 +399,26 @@ class Cache {
 		$BetssonEventMarket->CacheExpireDate = gmdate("Y-m-d H:i:s", strtotime($market->CacheExpireDate));
 		$BetssonEventMarket->ErrorMessage = $market->ErrorMessage;
 
-		if (!$BetssonEventMarket->save() ) {
-			throw new Exception(print_r($BetssonEventMarket->errors, true));
+		if ($this->storeDataRecord($BetssonEventMarket)) {
+			return false;
 		}
 
 		// Check if data is available
-		if ( !isset($market->MarketSelections->MarketSelection)) {
-			return;
+		if ( ! isset( $market->MarketSelections->MarketSelection ) ) {
+			return true;
 		}
 
 		$selections = $market->MarketSelections->MarketSelection;
 
-		if (!is_array($selections)) {
+		if ( ! is_array( $selections ) ) {
 			$selections = [$selections];
 		}
 
 		// Process the selections for market
-		foreach($selections as $key => $selection) {
+		foreach ( $selections as $key => $selection ) {
 			// Store the data
 			if ( is_object( $selection ) ) {
-				$BetssonEventMarket = $this->storeSelection( $selection, $market->MarketID );
+				$this->storeSelection( $selection, $BetssonEventMarket->MarketID );
 			} else {
 				continue;
 			}
@@ -398,10 +451,8 @@ class Cache {
 		$BetssonMarketSelection->CacheExpireDate = gmdate("Y-m-d H:i:s", strtotime($selection->CacheExpireDate));
 		//$BetssonMarketSelection->ErrorMessage = $selection->ErrorMessage;
 
-		if (!$BetssonMarketSelection->save() ) {
-			throw new Exception(print_r($BetssonMarketSelection->errors, true));
+		if ($this->storeDataRecord($BetssonMarketSelection)) {
+			return false;
 		}
-
-		return $BetssonMarketSelection;
 	}
 }

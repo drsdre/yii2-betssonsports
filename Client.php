@@ -101,16 +101,28 @@ class Client extends Component {
 	}
 
 	/**
+	 * Update the cache
 	 *
+	 * @param bool|false|string $force Force full data retrieval, or update or no data update
+	 * @param bool|false $expire Expire data in the database
+	 *
+	 * @return array process statistics
 	 */
-	public function updateCache($force = false) {
+	public function updateCache($force = false, $expire = false) {
 
 		$cache = new Cache($this);
-		// Initi data if force or no existing categories
-		if ($force || BetssonCategory::find()->count() == 0) {
+
+		// Init data if force or no existing categories
+		if ($force === false || BetssonCategory::find()->count() == 0) {
 			$cache->initData();
-		} else {
+		} elseif ($force === true) {
 			$cache->updateData();
 		}
+
+		// Expire data
+		if ($expire) {
+			$cache->expireData();
+		}
+		return $cache->getStatistics();
 	}
 }
