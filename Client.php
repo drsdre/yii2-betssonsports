@@ -113,9 +113,9 @@ class Client extends Component {
 		$cache = new Cache($this);
 
 		// Init data if force or no existing categories
-		if ($force === false || BetssonCategory::find()->count() == 0) {
+		if ($force === true || BetssonCategory::find()->count() == 0) {
 			$cache->initData();
-		} elseif ($force === true) {
+		} elseif ($force === false) {
 			$cache->updateData();
 		}
 
