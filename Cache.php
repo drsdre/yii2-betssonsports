@@ -138,7 +138,7 @@ class Cache {
 
 		foreach($subCategories as $key => $sub_category ) {
 			// Store the data
-			$BetssonCategoryLeague = $this->StoreCategoryLeague( $sub_category );
+			$this->StoreCategoryLeague( $sub_category );
 
 			// Check if data is available
 			if ( ! isset( $sub_category->SubCategoryEvents->Event ) ) {
@@ -154,7 +154,7 @@ class Cache {
 			foreach ( $events as $key => $event ) {
 
 				// Store the data
-				$BetssonLeagueEvent = $this->storeEvent( $event, $BetssonCategoryLeague->LeagueID );
+				$this->storeEvent( $event, $sub_category->SubCategoryID );
 
 				// Check if data is available
 				if ( ! isset( $event->EventMarkets->Market ) ) {
@@ -169,7 +169,7 @@ class Cache {
 
 				foreach ( $markets as $key => $market ) {
 					// Store the data
-					$BetssonEventMarket = $this->storeMarket( $market, $BetssonLeagueEvent->EventID );
+					$this->storeMarket( $market, $event->EventID );
 				}
 			}
 		}
