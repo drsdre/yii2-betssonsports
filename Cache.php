@@ -127,7 +127,7 @@ class Cache {
 
 		// Check if data is available
 		if ( ! isset($result->GetLatestUpdatesResult->SubCategory ) ) {
-			return;
+			return true;
 		}
 
 		$subCategories = $result->GetLatestUpdatesResult->SubCategory;
@@ -198,10 +198,10 @@ class Cache {
 		foreach( $result->GetActiveSubCategoriesResult->SubCategory as $key => $sub_category ) {
 			// Store the data
 			if (is_object( $sub_category )) {
-				$BetssonCategoryLeague = $this->StoreCategoryLeague( $sub_category );
+				$this->StoreCategoryLeague( $sub_category );
 
 				// Get the events for league
-				$this->GetActiveEventsForSubCategory($BetssonCategoryLeague->LeagueID);
+				$this->GetActiveEventsForSubCategory($sub_category->SubCategoryID);
 			}
 		}
 
