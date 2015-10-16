@@ -138,7 +138,9 @@ class Cache {
 
 		foreach($subCategories as $key => $sub_category ) {
 			// Store the data
-			$this->StoreCategoryLeague( $sub_category );
+			if ($this->StoreCategoryLeague( $sub_category ) === false) {
+				continue;
+			}
 
 			// Check if data is available
 			if ( ! isset( $sub_category->SubCategoryEvents->Event ) ) {
@@ -154,7 +156,9 @@ class Cache {
 			foreach ( $events as $key => $event ) {
 
 				// Store the data
-				$this->storeEvent( $event, $sub_category->SubCategoryID );
+				if ($this->storeEvent( $event, $sub_category->SubCategoryID ) === false) {
+					continue;
+				};
 
 				// Check if data is available
 				if ( ! isset( $event->EventMarkets->Market ) ) {
@@ -198,7 +202,9 @@ class Cache {
 		foreach( $result->GetActiveSubCategoriesResult->SubCategory as $key => $sub_category ) {
 			// Store the data
 			if (is_object( $sub_category )) {
-				$this->StoreCategoryLeague( $sub_category );
+				if ($this->StoreCategoryLeague( $sub_category ) === false) {
+					continue;
+				}
 
 				// Get the events for league
 				$this->GetActiveEventsForSubCategory($sub_category->SubCategoryID);
@@ -228,7 +234,8 @@ class Cache {
 			$BetssonCategory->CategoryID = intval($sub_category->CategoryID);
 			$BetssonCategory->LanguageCode = $sub_category->LanguageCode;
 		}
-		$BetssonCategory->CategoryName = $sub_category->CategoryName;
+		// TODO: temporary fix to prevent errors when Betsson provides no category name
+		$BetssonCategory->CategoryName = $sub_category->CategoryName?$sub_category->CategoryName:$sub_category->CategoryID;
 		$BetssonCategory->CacheDate = $sub_category->CacheDate;
 		$BetssonCategory->CacheExpireDate = $sub_category->CacheExpireDate;
 		$BetssonCategory->ErrorMessage = $sub_category->ErrorMessage;
@@ -290,7 +297,9 @@ class Cache {
 				if ( ! isset( $event->EventID ) ) {
 					continue;
 				}
-				$this->storeEvent( $event, $sub_category_id );
+				if ($this->storeEvent( $event, $sub_category_id ) === false) {
+					continue;
+				}
 
 				// Get the markets for event
 				$this->GetActiveMarketsForEvent( $event->EventID );
@@ -351,7 +360,9 @@ class Cache {
 					return false;
 				}
 
-				$this->storeMarket($market, $event_id);
+				if ($this->storeMarket($market, $event_id) === false) {
+					continue;
+				}
 			} else {
 				return false;
 			}
