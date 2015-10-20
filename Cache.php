@@ -61,11 +61,8 @@ class Cache {
 			// Save record
 			if ( ! $ActiveRecord->save() ) {
 				// Create error message
-				$message = "Save error: ".str_replace(['&', '='], [' ', ': '], http_build_query($ActiveRecord->errors, '') )."\n";
-				/*if ($this->debug) {
-					$message .= "Record data: ".str_replace(['&', '='], [' ', ': '], http_build_query($ActiveRecord->getAttributes(), '') )."\n";
-					$message .= "API data: ".str_replace(['&', '='], [' ', ': '], http_build_query($org_data, '') )."\n";
-				}*/
+				$message = "Save error: ".json_encode($ActiveRecord->errors)."\n";
+				$message .= "Record data: ".json_encode($ActiveRecord->getAttributes())."\n";
 				trigger_error($message, E_USER_WARNING);
 				$this->incStat('error_'.$ActiveRecord->tableName());
 				return false;
