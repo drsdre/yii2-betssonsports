@@ -75,7 +75,7 @@ class Cache {
 				$this->incStat('update_'.$ActiveRecord->tableName());
 			}
 		}
-		return false;
+		return true;
 	}
 
 	public function __construct($client) {
@@ -258,9 +258,10 @@ class Cache {
 		$BetssonCategoryLeague->CacheExpireDate = gmdate("Y-m-d H:i:s", strtotime($sub_category->CacheExpireDate));
 		$BetssonCategoryLeague->ErrorMessage = $sub_category->ErrorMessage;
 
-		if ($this->storeDataRecord($BetssonCategoryLeague)) {
+		if (!$this->storeDataRecord($BetssonCategoryLeague)) {
 			return false;
 		}
+		return true;
 	}
 
 	/**
@@ -327,9 +328,10 @@ class Cache {
 		$BetssonLeagueEvent->CacheExpireDate = gmdate("Y-m-d H:i:s", strtotime($event->CacheExpireDate));
 		$BetssonLeagueEvent->ErrorMessage = $event->ErrorMessage;
 
-		if ($this->storeDataRecord($BetssonLeagueEvent)) {
+		if (!$this->storeDataRecord($BetssonLeagueEvent)) {
 			return false;
 		}
+		return true;
 	}
 
 	protected function GetActiveMarketsForEvent($event_id) {
@@ -407,7 +409,7 @@ class Cache {
 		$BetssonEventMarket->CacheExpireDate = gmdate("Y-m-d H:i:s", strtotime($market->CacheExpireDate));
 		$BetssonEventMarket->ErrorMessage = $market->ErrorMessage;
 
-		if ($this->storeDataRecord($BetssonEventMarket)) {
+		if (!$this->storeDataRecord($BetssonEventMarket)) {
 			return false;
 		}
 
@@ -459,8 +461,9 @@ class Cache {
 		$BetssonMarketSelection->CacheExpireDate = gmdate("Y-m-d H:i:s", strtotime($selection->CacheExpireDate));
 		//$BetssonMarketSelection->ErrorMessage = $selection->ErrorMessage;
 
-		if ($this->storeDataRecord($BetssonMarketSelection)) {
+		if (!$this->storeDataRecord($BetssonMarketSelection)) {
 			return false;
 		}
+		return true;
 	}
 }
