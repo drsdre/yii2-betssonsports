@@ -232,7 +232,7 @@ class Cache {
 			$BetssonCategory->LanguageCode = $sub_category->LanguageCode;
 		}
 		// TODO: temporary fix to prevent errors when Betsson provides no category name
-		$BetssonCategory->CategoryName = $sub_category->CategoryName?$sub_category->CategoryName:$sub_category->CategoryID;
+		$BetssonCategory->CategoryName = $sub_category->CategoryName?$sub_category->CategoryName:'Not provided';
 		$BetssonCategory->CacheDate = $sub_category->CacheDate;
 		$BetssonCategory->CacheExpireDate = $sub_category->CacheExpireDate;
 		$BetssonCategory->ErrorMessage = $sub_category->ErrorMessage;
