@@ -266,11 +266,10 @@ class Cache {
 
 	/**
 	 * @param $sub_category_id
-	 * @param bool|false $reload
 	 *
 	 * @return bool
 	 */
-	protected function GetActiveEventsForSubCategory($sub_category_id, $reload = false) {
+	protected function GetActiveEventsForSubCategory($sub_category_id) {
 
 		// Get data from API
 		$result = $this->_client->GetActiveEventsForSubCategory(['subCategoryId' => $sub_category_id]);
