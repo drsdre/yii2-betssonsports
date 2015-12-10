@@ -96,6 +96,18 @@ class BetssonLeagueEvent extends \yii\db\ActiveRecord
     }
 
     /**
+     * Remove expired events older than deadline date
+     * @param string $deadline_date
+     * @return int
+     */
+    static public function deleteExpiredDeadline($deadline_date) {
+        return \Yii::$app->db
+            ->createCommand()
+            ->delete(self::tableName(), ['<', 'EventDeadline', $deadline_date])
+            ->execute();
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getLeague()
