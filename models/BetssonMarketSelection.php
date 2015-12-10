@@ -144,19 +144,10 @@ class BetssonMarketSelection extends \yii\db\ActiveRecord
         }
     }
 
-    public function getBetGroupNameParsed()
-    {
-        return str_replace(
-            ['#player#', '#limit#', '#unit#'],
-            [
-                $this->market->SubParticipantName,
-                $this->SelectionLimitValue,
-                $this->market->BetGroupUnitName
-            ],
-            $this->market->BetGroupName
-        );
-    }
-
+    /**
+     * Selection name with variables parsed
+     * @return string
+     */
     public function getSelectionNameParsed()
     {
         return str_replace(

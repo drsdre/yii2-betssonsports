@@ -106,7 +106,7 @@ class BetssonEventMarket extends \yii\db\ActiveRecord
             'MarketStartDate' => 'Start Date',
             'MarketEndDate' => 'End Date',
             'MarketPublishDate' => 'Publish Date',
-            'MarketDeadline' => 'Deadline',
+            'MarketDeadline' => 'Market Deadline',
             'MarketStatusID' => 'Status ID',
             'MarketStatusName' => 'Status',
             'MarketURL' => 'Url',
@@ -119,6 +119,22 @@ class BetssonEventMarket extends \yii\db\ActiveRecord
             'created_at' => 'Created At',
             'update_at' => 'Update At',
         ];
+    }
+
+    /**
+     * Bet group name with variables parsed
+     * @return string
+     */
+    public function getBetGroupNameParsed()
+    {
+        return str_replace(
+            ['#player#', '#unit#'],
+            [
+                $this->SubParticipantName,
+                $this->BetGroupUnitName
+            ],
+            $this->BetGroupName
+        );
     }
 
     /**
