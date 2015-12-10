@@ -106,11 +106,15 @@ class BetssonMarketSelection extends \yii\db\ActiveRecord
     /**
      * @return array
      */
-    public static function getSelectionNameList()
+    public static function getForDropdown($MarketID = null)
     {
-        $models = static::find()->orderBy('SelectionName')->groupBy('SelectionName')->all();
+        $models = static::find()
+                        ->andFilterWhere(['MarketID' => $MarketID])
+                        ->orderBy('SelectionName')
+                        ->groupBy('SelectionName')
+                        ->all();
 
-        return ArrayHelper::map($models, 'SelectionName', 'SelectionName');
+        return ArrayHelper::map($models, 'SelectionID', 'SelectionName');
     }
 
     /**
@@ -184,6 +188,7 @@ class BetssonMarketSelection extends \yii\db\ActiveRecord
      */
     public function getMarket()
     {
-        return $this->hasOne(BetssonEventMarket::className(), ['MarketID' => 'MarketID']);
+        return $this->hasOne(BetssonEventMarket::className(), ['MarketID' => 'MarketID'])
+            ->inverseOf('selections');
     }
 }

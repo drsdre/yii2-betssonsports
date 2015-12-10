@@ -122,15 +122,34 @@ class BetssonEventMarket extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param null|integer $EventID
+     * @param null|integer $LeagueID
+     * @param null|integer $CategoryID
+     *
      * @return array
      */
-    public static function getBetGroupNameList()
+    public static function getForDropdown($EventID = null, $LeagueID = null, $CategoryID = null)
     {
-        $models = static::find()->orderBy('BetGroupName')->groupBy('BetGroupName')->all();
+        $query = static::find()
+            ->andFilterWhere([self::tableName().'.EventID'=>$EventID])
+            ->orderBy('BetGroupName')
+            ->groupBy('BetGroupName');
+        if (!is_null($LeagueID) && $LeagueID <> '') {
+            $query
+                ->innerJoinWith('event')
+                ->andWhere([BetssonLeagueEvent::tableName().'.LeagueID' => $LeagueID]);
+        }
 
-        return ArrayHelper::map($models, 'BetGroupName', 'BetGroupName');
+        if (!is_null($CategoryID) && $CategoryID <> '') {
+            $query
+                ->innerJoinWith('event.league')
+                ->andWhere([BetssonCategoryLeague::tableName().'.CategoryID' => $CategoryID]);
+        }
+
+        $models = $query->all();
+
+        return ArrayHelper::map($models, 'BetGroupID', 'BetGroupName');
     }
-
 
     /**
      * Expire open market for which deadline has passed
@@ -148,11 +167,28 @@ class BetssonEventMarket extends \yii\db\ActiveRecord
     }
 
     /**
+     * Remove expired markets older than deadline date
+     * @param string $deadline_date
+     * @return int
+     */
+    static public function deleteExpiredDeadline($deadline_date) {
+        return \Yii::$app->db
+            ->createCommand()
+            ->delete(self::tableName(),
+                [
+                    'MarketStatusID' => self::STATUSNAME_EPIRED,
+                    ['<', 'MarketDeadline', $deadline_date]
+                ])
+            ->execute();
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getEvent()
     {
-        return $this->hasOne(BetssonLeagueEvent::className(), ['EventID' => 'EventID']);
+        return $this->hasOne(BetssonLeagueEvent::className(), ['EventID' => 'EventID'])
+            ->inverseOf('markets');
     }
 
     /**
@@ -160,6 +196,8 @@ class BetssonEventMarket extends \yii\db\ActiveRecord
      */
     public function getSelections()
     {
-        return $this->hasMany(BetssonMarketSelection::className(), ['MarketID' => 'MarketID']);
+        return $this->hasMany(BetssonMarketSelection::className(), ['MarketID' => 'MarketID'])
+            ->orderby('SelectionSortOrder')
+            ->inverseOf('market');
     }
 }

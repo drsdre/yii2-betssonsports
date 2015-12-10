@@ -81,13 +81,13 @@ class BetssonCategoryLeague extends \yii\db\ActiveRecord
     /**
      * @return array
      */
-    public static function getLeagueNameList($CategoryID = null)
+    public static function getForDropdown($CategoryID = null)
     {
-        $query = static::find()->orderBy('LeagueName')->groupBy('LeagueName');
-        if (!is_null($CategoryID)) {
-            $query->andWhere(['CategoryID' => $CategoryID]);
-        }
-        $models = $query->all();
+        $models = static::find()
+            ->andFilterWhere(['CategoryID' => $CategoryID])
+            ->orderBy('LeagueName')
+            ->groupBy('LeagueName')
+            ->all();
 
         return ArrayHelper::map($models, 'LeagueID', 'LeagueName');
     }
@@ -97,6 +97,16 @@ class BetssonCategoryLeague extends \yii\db\ActiveRecord
      */
     public function getCategory()
     {
-        return $this->hasOne(BetssonCategory::className(), ['CategoryID' => 'CategoryID']);
+        return $this->hasOne(BetssonCategory::className(), ['CategoryID' => 'CategoryID'])
+                    ->inverseOf('league');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getEvents()
+    {
+        return $this->hasMany(BetssonLeagueEvent::className(), ['LeagueID' => 'LeagueID'])
+                    ->inverseOf('league');
     }
 }
