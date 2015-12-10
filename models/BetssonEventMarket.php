@@ -176,7 +176,8 @@ class BetssonEventMarket extends \yii\db\ActiveRecord
             ->createCommand()
             ->delete(self::tableName(),
                 [
-                    'MarketStatusID' => self::STATUSNAME_EPIRED,
+                    'and',
+                    ['MarketStatusID' => self::STATUSNAME_EPIRED],
                     ['<', 'MarketDeadline', $deadline_date]
                 ])
             ->execute();
