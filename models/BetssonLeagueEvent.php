@@ -101,7 +101,7 @@ class BetssonLeagueEvent extends \yii\db\ActiveRecord
     public function getLeague()
     {
         return $this->hasOne(BetssonCategoryLeague::className(), ['LeagueID' => 'LeagueID'])
-                    ->inverseOf('league');
+                    ->inverseOf('events');
     }
 
     /**
@@ -109,6 +109,7 @@ class BetssonLeagueEvent extends \yii\db\ActiveRecord
      */
     public function getMarkets()
     {
-        return $this->hasMany(BetssonEventMarket::className(), ['EventID' => 'EventID']);
+        return $this->hasMany(BetssonEventMarket::className(), ['EventID' => 'EventID'])
+            ->inverseOf('event');
     }
 }

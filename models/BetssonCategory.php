@@ -88,9 +88,9 @@ class BetssonCategory extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getLeague()
+    public function getLeagues()
     {
-        return $this->hasOne(BetssonCategoryLeague::className(), ['CategoryID' => 'CategoryID'])
+        return $this->hasMany(BetssonCategoryLeague::className(), ['CategoryID' => 'CategoryID'])
             ->inverseOf('category');
     }
 }
