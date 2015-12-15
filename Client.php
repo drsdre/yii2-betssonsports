@@ -62,10 +62,13 @@ class Client extends Component {
 		if ( empty( $this->password ) ) {
 			throw new InvalidConfigException( "password cannot be empty. Please configure." );
 		}
+
+		$this->options['compression'] = SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP;
+
 		try {
 			$this->_client = new SoapClient($this->service_url, $this->options);
 		} catch (SoapFault $e) {
-			throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
+			throw new \Exception($e->getMessage(), (int) $e->getCode(), $e);
 		}
 	}
 
@@ -95,7 +98,7 @@ class Client extends Component {
 			$result = $this->_client->$name($call_params);
 
 		} catch (SoapFault $e) {
-			throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
+			throw new \Exception($e->getMessage(), (int) $e->getCode(), $e);
 		}
 		return $result;
 	}
