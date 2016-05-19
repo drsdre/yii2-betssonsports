@@ -68,7 +68,7 @@ class BetssonEventMarket extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['MarketID', 'LanguageCode', 'EventID', 'BetGroupID', 'BetGroupTypeID', 'BetGroupStyleID', 'BetGroupName', 'BetGroupUnitID', 'MarketDeadline', 'MarketStatusID', 'MarketStatusName', 'IsLive'], 'required'],
+            [['MarketID', 'LanguageCode', 'EventID', 'BetGroupID', 'BetGroupTypeID', 'BetGroupStyleID', 'BetGroupUnitID', 'MarketDeadline', 'MarketStatusID', 'MarketStatusName', 'IsLive'], 'required'],
             [['MarketID', 'EventID', 'BetGroupID', 'BetGroupTypeID', 'BetGroupStyleID', 'BetGroupUnitID', 'MarketStatusID'], 'integer'],
             [['MarketStartDate', 'MarketEndDate', 'MarketPublishDate', 'MarketDeadline', 'CacheDate', 'CacheExpireDate'], 'safe'],
             [['IsLive'], 'boolean'],

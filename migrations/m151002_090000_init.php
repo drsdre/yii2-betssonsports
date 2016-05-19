@@ -85,7 +85,7 @@ class m151002_090000_init extends Migration
             'BetGroupID' => Schema::TYPE_INTEGER . ' NOT NULL',
             'BetGroupTypeID' => Schema::TYPE_INTEGER . ' NOT NULL',
             'BetGroupStyleID' => Schema::TYPE_INTEGER . ' NOT NULL',
-            'BetGroupName' => Schema::TYPE_STRING . '(255) NOT NULL',
+            'BetGroupName' => Schema::TYPE_STRING . '(255) NULL',
             'BetGroupUnitID' => Schema::TYPE_INTEGER . ' NOT NULL',
             'BetGroupUnitName' => Schema::TYPE_STRING . '(255) NULL',
 
